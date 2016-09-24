@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chai - Data</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+   
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="  crossorigin="anonymous"></script>
+    
+  </head>
+  <body>
+    <div id="chai_data"></div>
+
+    <script type="text/javascript">
+      
+       function convertUTStoDate(unix_timestamp){
+          var date = new Date(unix_timestamp*1000);
+          var year = date.getFullYear();
+          var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate().toString();
+          var month = date.getMonth() < 9 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1).toString();
+          var formattedTime = month + "/" + day + "/" + year;
+          return formattedTime;
+       }
+
+       function parseArray(arr) {
+          var html = "";
+          $.each(arr, function(index, value) {
+            html +='<div class="op"><strong>' + convertUTStoDate(parseInt(value[0])) + '</strong><span>' + value[1] + '</span></div>';
+          })
+          return html;
+       }
+
+       function parseJSON(json) {
+          // get keys
+          var keys = Object.keys(json);
+          // build html output
+          var html = '';
+          // loop
+          $.each(keys, function(index, value) {
+            var obj = json[value];
+
+            // if is array
+            if(Array.isArray(obj)) {
+              html += parseArray(obj);
+            }
+            // if object
+            else if(typeof obj == "object") {
+              //console.log(value.replace("_", " "));
+              html +='<div class="op table-op ' + value + '"><strong>' + value.replace("_", " ") + '</strong><span>';
+              html += parseJSON(obj);
+              html += '</span></div>';
+            }
+            // default
+            else if(typeof obj != "undefined"){
+              var formatted_data, formatted_header;
+              // format for percentage
+              formatted_data = (value == "percentage") ? (parseFloat(obj) * 100).toFixed(2) + "%" : obj.toString();
+              // format for date
+              formatted_data = formatted_data.match('^[0-9]{10}$') ? convertUTStoDate(parseInt(formatted_data)) : formatted_data;
+              // format header for date
+              formatted_header = value.match('^[0-9]{10}$') ? convertUTStoDate(parseInt(value)) : value.replace("_", " ");
+
+              html += '<div class="op ' + value + '"><strong>' + formatted_header + '</strong><span>' + formatted_data + '</span></div>';
+            }
+          })
+          
+          return html; 
+       }
+
+       $.ajax({
+        url:'api/data.json',
+        method: 'GET',
+        dataType: 'JSON',
+        success: function(result){
+          var test = 'json loaded'
+          document.getElementById('chai_data').innerHTML = parseJSON(result);
+        },
+        error: function(msg) {
+          console.log('request failed: ', msg);
+        }
+      })
+
+    </script>
+  </body>
+</html>

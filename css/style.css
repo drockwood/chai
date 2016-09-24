@@ -1,0 +1,35 @@
+.op {
+  margin: .5em;
+  border: solid 1px #ccc;
+  width: 95% !important;
+}
+
+.op.table-op {
+  display: table;
+}
+
+.op.table-op > strong {
+  display: table-cell;
+}
+
+.op strong, .op span {
+  display: inline-block;
+  padding: 5px;
+  vertical-align: middle;
+  text-transform: capitalize;
+}
+
+.op strong {
+  width: 5em;
+  font-weight: 900;
+  background: #e7e7e7;
+}
+
+.op span {
+  padding: 5px 15px;
+}
+
+.op.day_stats .op {
+    float: left;
+    width: auto !important;
+}
